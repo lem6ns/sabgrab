@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "name": "sabgrab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "fastify": "^4.14.1",
+    "jsdom": "^21.1.0",
+    "undici": "^5.20.0"
+  }
+}

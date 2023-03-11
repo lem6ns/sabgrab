@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SABgrab</title>
+    <style>
+        * {
+            color-scheme: dark;
+        }
+    </style>
+</head>
+
+<body style="background: black;">
+    <div style="display: flex; justify-content: center;">
+        <div
+            style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; width: 50%; text-align: center;">
+            <h1>SABgrab</h1>
+            <div>
+                <textarea id="urls" placeholder="URLs here, delimited by new line" style="width: 50%;"
+                    rows="5"></textarea>
+            </div>
+            <br><br>
+            <span id="grab" onclick="grab()"
+                style="cursor: pointer; background: gray; padding: 10px; border-radius: 10px;">grab</span>
+            <span id="export" onclick="exportJson()"
+                style="display: none; cursor: pointer; background: gray; padding: 10px; border-radius: 10px;">export
+                as .json</span>
+            </div>
+            <div id="results" style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; width: 35%; text-align: center;">
+
+            </div>
+        <br>
+    </div>
+    </div>
+    <script>
+        let grabbing = false;
+        let jsonResults = [];
+
+        const template = `<br><div style="width: 100%; border: 3px solid white; text-align: center; padding-bottom: 30px; ">
+                <h1>
+                    <code>$DISPLAYNAME | $ADDRESS</code>
+                </h1>
+                <span>host</span>
+                <br>
+                <code>$HOST</code>
+                <br>
+                <br>
+                <span>port</span>
+                <br>
+                <code>$PORT</code>
+                <br><br>
+                <span>username</span>
+                <br>
+                <code>$USERNAME</code>
+                <br><br>
+                <span>password</span>
+                <br>
+                <code>$PASSWORD</code>
+                <br><br>
+                <span>SSL</span>
+                <br>
+                <code>$SSL</code>
+            </div>`;
+
+        const grab = async () => {
+            jsonResults = [];
+            const urls = [...new Set(document.querySelector("#urls").value.trim().split("\n"))];
+            if (grabbing) return;
+            grabbing = true;
+            document.querySelector("#results").innerHTML = "<h1>Loading...</h1>";
+            await Promise.all(urls.map(async url => {
+                const resp = await fetch(url.trim()).then(r => r.json());
+                if (resp.error) return;
+
+                jsonResults.push(...resp.data);
+                resp.data.forEach(server => {
+                    document.querySelector("#results").innerHTML += template
+                        .replace("$DISPLAYNAME", server.description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
+                        .replace("$ADDRESS", url)
+                        .replace("$HOST", server.host.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
+                        .replace("$PORT", server.port)
+                        .replace("$USERNAME", server.username.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
+                        .replace("$PASSWORD", server.description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
+                        .replace("$SSL", server.ssl ? "Yes" : "No")
+                });
+            }));
+            grabbing = false;
+            document.querySelector("#results").innerHTML = document.querySelector("#results").innerHTML.replace("<h1>Loading...</h1>", "");
+            document.querySelector("#export").style.display = "";
+        };
+
+        const exportJson = () => {
+            const blob = new Blob([
+                JSON.stringify(jsonResults, null, 4)
+            ], { type: "application/json" });
+            const anchor = document.createElement('a');
+            anchor.setAttribute('download', `results-${Date.now()}.json`);
+            anchor.setAttribute('href', URL.createObjectURL(blob));
+            anchor.click();
+        }
+    </script>
+</body>
+
+</html>
