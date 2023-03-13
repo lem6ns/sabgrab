@@ -73,7 +73,7 @@ httpServer.get("/:target", async (request) => {
 	if (!target.match(/[0-9]+(?:\.[0-9]+){3}:[0-9]+/)?.length) {
 		console.log(
 			chalk.red.bold(
-				`  │ [http] invalid ip address passed. (${target.split(":")[0]})`,
+				`  │ [http] invalid ip address passed. (${target})`,
 			),
 		);
 		return {
@@ -85,12 +85,12 @@ httpServer.get("/:target", async (request) => {
 	};
 	const baseUrl = `http://${target}`;
 
-	console.log(chalk.green(`+ [http] (${target.split(":")[0]}) new target`));
+	console.log(chalk.green(`+ [http] (${target}) new target`));
 	const [error, body] = await bRequest(`${baseUrl}/config/server/`);
 	if (error) {
 		console.log(
 			chalk.red.bold(
-				`  │ [http] (${target.split(":")[0]}) error. (${error})`,
+				`  │ [http] (${target}) error. (${error})`,
 			),
 		);
 		return {
@@ -166,7 +166,7 @@ httpServer.get("/:target", async (request) => {
 			) {
 				console.log(
 					chalk.red.bold(
-						`  │ [http] (${target.split(":")[0]}) username and password is invalid, skipping. (${server.host.toLowerCase()})`,
+						`  │ [http] (${target}) username and password is invalid, skipping. (${server.host.toLowerCase()})`,
 					),
 				);
 				break;
@@ -175,7 +175,7 @@ httpServer.get("/:target", async (request) => {
 			if (!result) {
 				console.log(
 					chalk.red.bold(
-						`  │ [http] (${target.split(":")[0]}) failed. (${server.host.toLowerCase()}:${port} | ${message.trim()})`,
+						`  │ [http] (${target}) failed. (${server.host.toLowerCase()}:${port} | ${message.trim()})`,
 					),
 				);
 				continue;
@@ -184,7 +184,7 @@ httpServer.get("/:target", async (request) => {
 			skipServer = false;
 			console.log(
 				chalk.green.bold(
-					`  │ [http] (${target.split(":")[0]}) valid credentials, connected successfully (${server.host.toLowerCase()})`,
+					`  │ [http] (${target}) valid credentials, connected successfully (${server.host.toLowerCase()})`,
 				),
 			);
 			break;
