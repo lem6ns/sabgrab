@@ -107,9 +107,9 @@
                 });
                 document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - GOOD`);
             }));
-            document.querySelector("#urls").removeAttribute("readonly")
             document.querySelector("#export").style.display = "";
             setTimeout(() => {
+                document.querySelector("#urls").removeAttribute("readonly")
                 document.querySelector("#urls").value = document.querySelector("#urls").value.replace(/ - GOOD/g, "")
             }, 5000)
         };
