@@ -21,3 +21,6 @@ in new terminal,
 3. `node getVulnerableServers.js`
 4. `node testVulnerableServers.js`
 5. profit! credentials are saved at `creds.json`
+
+# troubleshooting
+make sure that port 8119 and port 8112 is open.
