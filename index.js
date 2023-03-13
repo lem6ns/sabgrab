@@ -248,6 +248,7 @@ nntpServer.on("connection", (socket) => {
 				)
 					credentialKey = addr;
 			});
+			if (!credentialKey) return socket.destroy();
 			credentials[credentialKey][
 				credentials[credentialKey].length - 1
 			].username = value.trim();
