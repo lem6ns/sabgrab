@@ -13,13 +13,12 @@
 </head>
 
 <body style="background: black;">
-    <div style="display: flex; justify-content: center;">
+    <div style="display: flex; align-items: center; justify-content: center;">
         <div
             style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; width: 50%; text-align: center;">
             <h1>SABgrab</h1>
             <div>
-                <textarea id="urls" placeholder="URLs here, delimited by new line" style="width: 50%;"
-                    rows="5"></textarea>
+                <textarea id="urls" placeholder="URLs here, delimited by new line" style="width: 50%; height: 72vh;" style="resize: none;"></textarea>
             </div>
             <br><br>
             <span id="grab" onclick="grab()"
@@ -27,20 +26,22 @@
             <span id="export" onclick="exportJson()"
                 style="display: none; cursor: pointer; background: gray; padding: 10px; border-radius: 10px;">export
                 as .json</span>
-            </div>
-            <div id="results" style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; width: 35%; text-align: center;">
+        </div>
+        <div id="results"
+            style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; width: 35%; text-align: center; height: 98vh; overflow: auto; overflow-x: clip;">
 
-            </div>
+        </div>
         <br>
     </div>
     </div>
     <script>
-        let grabbing = false;
         let jsonResults = [];
 
-        const template = `<br><div style="width: 100%; border: 3px solid white; text-align: center; padding-bottom: 30px; ">
+        const template = `<br><div style="width: 97%; border: 3px solid white; text-align: center; padding-bottom: 30px; ">
                 <h1>
-                    <code>$DISPLAYNAME | $ADDRESS</code>
+                    <code>$DISPLAYNAME</code>
+                    <br>
+                    <code>$ADDRESS</code>
                 </h1>
                 <span>host</span>
                 <br>
@@ -66,13 +67,32 @@
 
         const grab = async () => {
             jsonResults = [];
+            document.querySelector("#export").style.display = "none";
             const urls = [...new Set(document.querySelector("#urls").value.trim().split("\n"))];
-            if (grabbing) return;
-            grabbing = true;
+            document.querySelector("#urls").value = urls.join("\n");
+            if (document.querySelector("#urls").getAttribute("readonly")) return;
+            document.querySelector("#urls").setAttribute("readonly", "true")
             document.querySelector("#results").innerHTML = "<h1>Loading...</h1>";
             await Promise.all(urls.map(async url => {
-                const resp = await fetch(url.trim()).then(r => r.json());
-                if (resp.error) return;
+                document.querySelector("#urls").value = document.querySelector("#urls").value.replace(url, `${url} - IN PROGRESS`);
+                document.querySelector("#results").innerHTML = document.querySelector("#results").innerHTML.replace("<h1>Loading...</h1>", "");
+                let resp;
+                try {
+                    resp = await fetch(url.trim()).then(r => r.json());
+                } catch {
+                    document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - BAD`);
+                    setTimeout(() => {
+                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "")
+                    }, 5000)
+                    return;
+                }
+                if (resp.error || !resp.data?.length) {
+                    document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - BAD`);
+                    setTimeout(() => {
+                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "")
+                    }, 5000)
+                    return;
+                }
 
                 jsonResults.push(...resp.data);
                 resp.data.forEach(server => {
@@ -85,10 +105,13 @@
                         .replace("$PASSWORD", server.password.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
                         .replace("$SSL", server.ssl ? "Yes" : "No")
                 });
+                document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - GOOD`);
             }));
-            grabbing = false;
-            document.querySelector("#results").innerHTML = document.querySelector("#results").innerHTML.replace("<h1>Loading...</h1>", "");
+            document.querySelector("#urls").removeAttribute("readonly")
             document.querySelector("#export").style.display = "";
+            setTimeout(() => {
+                document.querySelector("#urls").value = document.querySelector("#urls").value.replace(/ - GOOD/g, "")
+            }, 5000)
         };
 
         const exportJson = () => {
