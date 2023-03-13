@@ -8,6 +8,7 @@ https://user-images.githubusercontent.com/62519659/224592891-9016ddc6-3f33-4b9c-
 1. `npm i`
 2. configure `config.json` (please fill in host field and not leave it 127.0.0.1)
 3. `node index.js`
+4. web ui accessible at `:8112`
 
 in new terminal,
 1. get criminalip api key [here](https://www.criminalip.io/mypage/information)
