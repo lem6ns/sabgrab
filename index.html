@@ -82,7 +82,7 @@
                         .replace("$HOST", server.host.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
                         .replace("$PORT", server.port)
                         .replace("$USERNAME", server.username.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
-                        .replace("$PASSWORD", server.description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
+                        .replace("$PASSWORD", server.password.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'))
                         .replace("$SSL", server.ssl ? "Yes" : "No")
                 });
             }));
