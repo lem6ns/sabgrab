@@ -82,14 +82,14 @@
                 } catch {
                     document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - BAD`);
                     setTimeout(() => {
-                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "")
+                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "").replace(`${url} - BAD`, "")
                     }, 5000)
                     return;
                 }
                 if (resp.error || !resp.data?.length) {
                     document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - IN PROGRESS`, `${url} - BAD`);
                     setTimeout(() => {
-                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "")
+                        document.querySelector("#urls").value = document.querySelector("#urls").value.replace(`${url} - BAD\n`, "").replace(`${url} - BAD`, "")
                     }, 5000)
                     return;
                 }
