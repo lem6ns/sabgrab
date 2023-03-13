@@ -226,9 +226,8 @@ nntpServer.on("connection", (socket) => {
 	socket.on("data", (data) => {
 		const stringifiedData = data.toString();
 		if (!stringifiedData.trim().startsWith("authinfo")) {
-			console.error(chalk.red.bold("  │     disable SSL and try again."));
+			console.error(chalk.red.bold("  │     did not send right response."));
 			socket.destroy();
-			console.log(stringifiedData);
 		}
 		const key = stringifiedData.trim().split(" ")[1];
 		const value = stringifiedData.trim().split(" ")[2];
