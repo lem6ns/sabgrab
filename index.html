@@ -66,11 +66,11 @@
             </div>`;
 
         const grab = async () => {
+            if (document.querySelector("#urls").getAttribute("readonly")) return;
             jsonResults = [];
             document.querySelector("#export").style.display = "none";
             const urls = [...new Set(document.querySelector("#urls").value.trim().split("\n"))];
             document.querySelector("#urls").value = urls.join("\n");
-            if (document.querySelector("#urls").getAttribute("readonly")) return;
             document.querySelector("#urls").setAttribute("readonly", "true")
             document.querySelector("#results").innerHTML = "<h1>Loading...</h1>";
             await Promise.all(urls.map(async url => {
