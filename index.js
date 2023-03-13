@@ -205,7 +205,7 @@ httpServer.get("/:target", async (request) => {
 
 	return {
 		error: false,
-		data: credentials[target.split(":")[0]],
+		data: credentials[target.split(":")[0]].filter(cred => !cred.password),
 	};
 });
 // #endregion
